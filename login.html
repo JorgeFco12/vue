@@ -11,6 +11,72 @@
         body {
             background-color: lightgray;
         }
+
+        table.customTable {
+            width: 100%;
+            background-color: #FFFFFF;
+            border-collapse: collapse;
+            border-width: 2px;
+            border-color: #7ea8f8;
+            border-style: solid;
+            color: #000000;
+        }
+
+        table.customTable td, table.customTable th {
+            border-width: 2px;
+            border-color: #7ea8f8;
+            border-style: solid;
+            padding: 5px;
+        }
+
+        table.customTable thead {
+            background-color: #7ea8f8;
+        }
+
+
+        table.cinereousTable {
+            border: 6px solid #948473;
+            background-color: #FFE3C6;
+            width: 100%;
+            text-align: center;
+        }
+        table.cinereousTable td, table.cinereousTable th {
+            border: 1px solid #948473;
+            padding: 4px 4px;
+        }
+        table.cinereousTable tbody td {
+            font-size: 13px;
+        }
+        table.cinereousTable thead {
+            background: #948473;
+            background: -moz-linear-gradient(top, #afa396 0%, #9e9081 66%, #948473 100%);
+            background: -webkit-linear-gradient(top, #afa396 0%, #9e9081 66%, #948473 100%);
+            background: linear-gradient(to bottom, #afa396 0%, #9e9081 66%, #948473 100%);
+        }
+        table.cinereousTable thead th {
+            font-size: 17px;
+            font-weight: bold;
+            color: #F0F0F0;
+            text-align: left;
+            border-left: 2px solid #948473;
+        }
+        table.cinereousTable thead th:first-child {
+            border-left: none;
+        }
+
+        table.cinereousTable tfoot {
+            font-size: 16px;
+            font-weight: bold;
+            color: #F0F0F0;
+            background: #948473;
+            background: -moz-linear-gradient(top, #afa396 0%, #9e9081 66%, #948473 100%);
+            background: -webkit-linear-gradient(top, #afa396 0%, #9e9081 66%, #948473 100%);
+            background: linear-gradient(to bottom, #afa396 0%, #9e9081 66%, #948473 100%);
+        }
+        table.cinereousTable tfoot td {
+            font-size: 16px;
+        }
+
     </style>
 </head>
 
@@ -19,7 +85,7 @@
 
         <hr>
         <hr>
-        <form>
+        <form v-if="!is_login">
             <fieldset>
                 <legend>
                     Email:
@@ -39,6 +105,24 @@
             </button>
         </form>
 
+        <table class="cinereousTable" v-if="is_login">
+            <thead>
+                <tr>
+                    <th style="text-align: center;">Informacion Personal</th>
+                    <th style="text-align: center;">Informacion de Contacto</th>
+                    <th style="text-align: center;">Informacion de la Compañia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="u in users">
+                    <td>{{u.name}},  {{u.username}}</td>
+                    <td>{{u.email}},  {{u.phone}}</td>
+                    <td>{{u.company.name}},  {{u.company.bs}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button @click="logout" v-if="is_login">Salir</button>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -48,35 +132,62 @@
 
         createApp({
             setup() {
-                
-                users = ref([]);
-                email = ref('');
-                password= ref('');
+                let users = ref([]);
+                let email = ref('');
+                let password = ref('');
+                let is_login = ref(false);
+
+                let tmp = localStorage.getItem("is_login");
+                if (tmp === "true") {
+                    is_login.value = true;
+                }
 
                 return {
-                   users ,
-                   email,
-                   password
+                    users,
+                    email,
+                    password,
+                    is_login
                 }
             },
-            methods:{
-                async login(){
-                    const response= await fetch("users.json");
-                    const users = await response.json();
-                    console.log(users);
-
-                    users.forEach((user) =>{
-                        if(this.email == user.email){
-                            if(this.password == user.password){
-                                alert("Bienvenido");
-                            }else{
-                            alert("Tiene mal su correo o contraseña");
-                        }
-                        }
-                    }
-                    );
+            mounted: function () {
+                if (this.is_login) {
+                    this.getUsers();
                 }
+            },
+            methods: {
+                async getUsers() {
+                    const response = await fetch("users.json?v=1");
+                    const tmp_users = await response.json();
+                    this.users = tmp_users;
+                },
+                async login() {
+                    const response = await fetch("users.json?v=1");
+                    this.users = await response.json();
 
+                    this.is_login = false;
+
+                    this.users.forEach((user) => {
+                        if (this.email == user.email) {
+                            if (this.password == user.password) {
+                                this.is_login = true;
+                                alert("Inicio de sesión exitoso");
+
+                                localStorage.setItem("user_data", JSON.stringify(user));
+                                localStorage.setItem("is_login", "true");
+
+                                this.getUsers();
+                            }
+                        }
+                    });
+
+                    if (!this.is_login) {
+                        alert("Verifique que la información esté correcta");
+                    }
+                },
+                logout() {
+                    this.is_login = false;
+                    localStorage.removeItem("is_login");
+                }
             }
         }).mount('#container_app')
 
