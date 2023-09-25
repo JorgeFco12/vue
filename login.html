@@ -105,24 +105,84 @@
             </button>
         </form>
 
-        <table class="cinereousTable" v-if="is_login">
-            <thead>
-                <tr>
-                    <th style="text-align: center;">Informacion Personal</th>
-                    <th style="text-align: center;">Informacion de Contacto</th>
-                    <th style="text-align: center;">Informacion de la Compañia</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="u in users">
-                    <td>{{u.name}},  {{u.username}}</td>
-                    <td>{{u.email}},  {{u.phone}}</td>
-                    <td>{{u.company.name}},  {{u.company.bs}}</td>
-                </tr>
-            </tbody>
-        </table>
 
-        <button @click="logout" v-if="is_login">Salir</button>
+        <div v-if="is_login"> 
+
+            <table class="cinereousTable">
+                <thead>
+                    <tr>
+                        <th style="text-align: center;">Informacion Personal</th>
+                        <th style="text-align: center;">Informacion de Contacto</th>
+                        <th style="text-align: center;">Informacion de la Compañia</th>
+                        <th style="text-align: center;">Acciones a Realizar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="u in users">
+                        <td>{{u.name}},  {{u.username}}</td>
+                        <td>{{u.email}},  {{u.phone}}</td>
+                        <td>{{u.company.name}},  {{u.company.bs}}</td>
+                        <td> 
+                            <button @click="edit(u)">Editar</button>
+                            <button @click="remove(u.id)">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button @click="add">Añadir</button>
+            <button @click="logout" v-if="is_login">Salir</button>  
+
+            <br><br><br>
+            <div class="rendered-form" v-if="action=='add'">
+
+                <div class="">
+                    <h2 access="false">Añadir Nuevo Usuario a la Lista</h2></div>
+                <div class="">
+                    <label for="text-">Nombre Completo: </label>
+                    <input v-model="new_user.name" type="text">
+                </div>
+
+                <div class="">
+                    <label for="text-" >Email: </label>
+                    <input v-model="new_user.email" type="text">
+                </div>
+
+                <div class="">
+                    <label for="text-" >Nombre de la Compañia: </label>
+                    <input v-model="new_user.company_name" type="text">
+                </div>
+
+                <div class="">
+                    <button type="button" @click="save('create')">Guardar Usuario</button>
+                </div>
+            </div>
+
+            <div v-if="action === 'edit' && editarUsuario">
+                <div>
+                    <h2>Editar Usuario</h2>
+                </div>
+                <form>
+                    <div>
+                        <label for="edit-name">Nombre Completo: </label>
+                        <input v-model="editarUsuario.name" type="text" id="edit-name">
+                    </div>
+                
+                    <div>
+                        <label for="edit-email">Email: </label>
+                        <input v-model="editarUsuario.email" type="text" id="edit-email">
+                    </div>
+                
+                    <div>
+                        <label for="edit-company-name">Nombre de la Compañia: </label>
+                        <input v-model="editarUsuario.company.name" type="text" id="edit-company-name">
+                    </div>
+                
+                    <button type="button" @click="saveEdit">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -136,6 +196,8 @@
                 let email = ref('');
                 let password = ref('');
                 let is_login = ref(false);
+                let action = ref('');
+                let new_user = ref([]);
 
                 let tmp = localStorage.getItem("is_login");
                 if (tmp === "true") {
@@ -146,7 +208,10 @@
                     users,
                     email,
                     password,
-                    is_login
+                    is_login,
+                    action,
+                    new_user,
+                    editarUsuario: null
                 }
             },
             mounted: function () {
@@ -187,6 +252,43 @@
                 logout() {
                     this.is_login = false;
                     localStorage.removeItem("is_login");
+                },
+                add(){
+                    this.action= 'add';
+                },
+                save(action){
+                    let company = [];
+                    company.name= this.new_user.company_name;
+                    this.new_user.company = company;
+
+                    this.users.push(this.new_user);
+                    this.new_user=[];
+
+                    alert("Usuario Añadido Correctamente");
+                    this.action='';
+                },
+                remove(id) {
+                    const index = this.users.findIndex(user => user.id === id);
+                    if (index !== -1) {
+                        this.users.splice(index, 1);
+                        alert("Usuario eliminado correctamente");
+                    } 
+                },
+                edit(user){
+                    this.action = 'edit';
+                    this.editarUsuario = { ...user };
+                },
+                saveEdit() {
+                    const index = this.users.findIndex(user => user.id === this.editarUsuario.id);
+
+                    if (index !== -1) {
+                        this.users[index] = { ...this.editarUsuario };
+
+                        this.editarUsuario = null;
+                        this.action = '';
+
+                        alert("Usuario Modificado Correctamente");
+                    } 
                 }
             }
         }).mount('#container_app')
