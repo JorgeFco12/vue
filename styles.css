@@ -1,0 +1,43 @@
+body {
+  background-color: #f3d5da;
+}
+form {
+  width: 50%;
+  background-color: #d5eba4;
+}
+form legend {
+  color: red;
+}
+form #li1 {
+  background-color: #5858df;
+  border-width: 2px;
+  border-style: dotted;
+  border-color: #000000;
+}
+form #li2 {
+  background-color: #73c481;
+  border-width: 2px;
+  border-style: dotted;
+  border-color: #000000;
+}
+form #li3 {
+  background-color: #5fa8da;
+  border-width: 2px;
+  border-style: dotted;
+  border-color: #000000;
+}
+form #li4 {
+  background-color: #e4bf59;
+  border-width: 2px;
+  border-style: dotted;
+  border-color: #000000;
+}
+form #li5 {
+  background-color: #e07351;
+  border-width: 2px;
+  border-style: dotted;
+  border-color: #000000;
+}
+form #olvidar {
+  color: blue;
+}

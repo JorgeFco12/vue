@@ -1,0 +1,37 @@
+@colores: rgb(88, 88, 223), #73c481, #5fa8da, #e4bf59, #e07351;
+
+body{
+    background-color: rgb(243, 213, 218);
+}
+
+
+form{
+
+    width: 50%;
+    background-color: rgb(213, 235, 164);
+
+    legend{
+        color:  red;
+      }
+
+    .for (@i, @length) when (@i <= @length) {
+    @color: extract(@colores, @i);
+
+    #li@{i} {
+        background-color: @color;
+        border-width: 2px;
+        border-style: dotted;
+        border-color: #000000;
+
+    }
+    .for(@i + 1, @length);
+    }
+    .for(1, length(@colores));
+
+    
+    #olvidar{
+        color: blue;
+    }
+
+  }
+
